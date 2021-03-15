@@ -1,80 +1,94 @@
-module.exports = function toReadable(n) {
-
-    const arr = (x) => Array.from(x);
-    const num = (x) => Number(x) || 0;
-    const isEmpty = (xs) => xs.length === 0;
-    const take = (n) => (xs) => xs.slice(0, n);
-    const drop = (n) => (xs) => xs.slice(n);
-    const reverse = (xs) => xs.slice(0).reverse();
-    const comp = (f) => (g) => (x) => f(g(x));
-    const not = (x) => !x;
-    const chunk = (n) => (xs) =>
-        isEmpty(xs) ? [] : [take(n)(xs), ...chunk(n)(drop(n)(xs))];
-
-    const a = [
-        "",
-        "one",
-        "two",
-        "three",
-        "four",
-        "five",
-        "six",
-        "seven",
-        "eight",
-        "nine",
-        "ten",
-        "eleven",
-        "twelve",
-        "thirteen",
-        "fourteen",
-        "fifteen",
-        "sixteen",
-        "seventeen",
-        "eighteen",
-        "nineteen",
-    ];
-    const b = [
-        "",
-        "",
-        "twenty",
-        "thirty",
-        "forty",
-        "fifty",
-        "sixty",
-        "seventy",
-        "eighty",
-        "ninety",
-    ];
-    const g = [
-        "",
-        "thousand",
-        "million",
-        "billion",
-        "trillion",
-        "quadrillion",
-        "quintillion",
-        "sextillion",
-        "septillion",
-        "octillion",
-        "nonillion",
-    ];
-    const makeGroup = ([ones, tens, huns]) => {
-        return [
-            num(huns) === 0 ? "" : a[huns] + " hundred ",
-            num(ones) === 0 ? b[tens] : (b[tens] && b[tens] + " ") || "",
-            a[tens + ones] || a[ones],
-        ].join("");
+module.exports = function toReadable(number) {
+    const arrString = {
+        1: "one",
+        2: "two",
+        3: "three",
+        4: "four",
+        5: "five",
+        6: "six",
+        7: "seven",
+        8: "eight",
+        9: "nine",
+        10: "ten",
+        11: "eleven",
+        12: "twelve",
+        13: "thirteen",
+        14: "fourteen",
+        15: "fifteen",
+        16: "sixteen",
+        17: "seventeen",
+        18: "eighteen",
+        19: "nineteen",
+        20: "twenty",
+        30: "thirty",
+        40: "forty",
+        50: "fifty",
+        60: "sixty",
+        70: "seventy",
+        80: "eighty",
+        90: "ninety",
     };
-    const thousand = (group, i) => (group === "" ? group : `${group} ${g[i]}`);
-    if (typeof n === "number") return toReadable(String(n));
-    if (n === "0") return "zero";
-
-    return comp(chunk(3))(reverse)(arr(n))
-        .map(makeGroup)
-        .map(thousand)
-        .filter(comp(not)(isEmpty))
-        .reverse()
-        .join(" ");
-
-
-}
+    if (number === 0) {
+        return "zero";
+    } else {
+        let arrToString = [];
+        const arrNumber = number
+            .toString()
+            .split("")
+            .map((num) => parseInt(num));
+        if (arrNumber.length == 1) {
+            for (let num in arrString) {
+                if (num == number) arrToString.push(arrString[num]);
+            }
+        } else if (arrNumber.length == 2) {
+            if (arrNumber[0] == 1) {
+                for (let num in arrString) {
+                    if (num == number) arrToString.push(arrString[num]);
+                }
+            } else if (arrNumber[1] == 0) {
+                for (let num in arrString) {
+                    if (num == number) arrToString.push(arrString[num]);
+                }
+            } else {
+                for (let num in arrString) {
+                    if (num == arrNumber[0] * 10)
+                        arrToString.push(arrString[num]);
+                    if (num == arrNumber[1]) arrToString.push(arrString[num]);
+                }
+            }
+        } else if (arrNumber.length == 3) {
+            arrToString.push("hundred");
+            for (let num in arrString) {
+                if (num == arrNumber[0]) arrToString.push(arrString[num]);
+            }
+            if (arrNumber[1] == 0) {
+                for (let num in arrString) {
+                    // if(num==arrNumber[0]) arrToString.push(arrString[num])
+                    if (num == arrNumber[2])
+                        arrToString.unshift(arrString[num]);
+                }
+            } else if (arrNumber[1] == 1) {
+                const decimal = 10 + arrNumber[2];
+                for (let num in arrString) {
+                    if (num == decimal) arrToString.unshift(arrString[num]);
+                }
+            } else if (arrNumber[2] == 0) {
+                const decimal = 10 * arrNumber[1];
+                for (let num in arrString) {
+                    if (num == decimal) arrToString.unshift(arrString[num]);
+                }
+            } else {
+                for (let num in arrString) {
+                    if (num == arrNumber[1] * 10)
+                        arrToString.unshift(arrString[num]);
+                }
+                for (let num in arrString) {
+                    if (num == arrNumber[2])
+                        arrToString.unshift(arrString[num]);
+                }
+            }
+        }
+        const result = arrToString.reverse().join(" ");
+        return result;
+    }
+};
